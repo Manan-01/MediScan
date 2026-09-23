@@ -1,7 +1,7 @@
 # Stage 1: Build the Spring Boot application
 FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
-COPY . .
+COPY backend/ .
 RUN chmod +x mvnw && ./mvnw clean package -DskipTests
 
 # Stage 2: Run the application
