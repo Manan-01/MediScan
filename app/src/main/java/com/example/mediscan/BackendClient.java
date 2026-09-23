@@ -19,7 +19,7 @@ import java.util.List;
 
 public class BackendClient {
 
-    private static final String BASE_URL = "http://192.168.29.67:8080";
+    private static final String BASE_URL = "https://mediscan-backend-oes2.onrender.com";
 
     public interface ParseCallback{
         void onResult(boolean success,String name,String expiry,String errorMessage);
