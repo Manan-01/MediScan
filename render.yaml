@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: mediscan-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    region: singapore
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: GEMINI_API_KEY
+        sync: false
