@@ -11,6 +11,12 @@ public class Medicine {
     public String name;
     public String groupKey;
     public String expiryDate;
+    public String quantity;
+    public String batchNumber;
+    public String assignedTo;
+    public String location;
+    public String status; // "ACTIVE", "USED", "DISPOSED"
+
     public boolean notifiedSoon;
     public boolean notifiedExpired;
 }

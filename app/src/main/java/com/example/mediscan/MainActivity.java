@@ -1,6 +1,8 @@
 package com.example.mediscan;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,14 +11,16 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.work.PeriodicWorkRequest;
+import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import java.time.YearMonth;
@@ -26,6 +30,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String PREFS_THEME = "theme_prefs";
+    private static final String KEY_THEME_MODE = "theme_mode";
 
     private final ActivityResultLauncher<String[]> permissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
@@ -40,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        applySavedTheme();
         super.onCreate(savedInstanceState);
         NotificationHelper.createChannel(this);
 
@@ -56,27 +64,50 @@ public class MainActivity extends AppCompatActivity {
             permissionLauncher.launch(permissionsToRequest.toArray(new String[0]));
         }
 
-        PeriodicWorkRequest request = new PeriodicWorkRequest.Builder(
-                ExpiryCheckWorker.class, 1, TimeUnit.DAYS)
+        Constraints constraints = new Constraints.Builder()
+                .setRequiresBatteryNotLow(false)
                 .build();
+
+        PeriodicWorkRequest request = new PeriodicWorkRequest.Builder(
+                ExpiryCheckWorker.class, 12, TimeUnit.HOURS)
+                .setConstraints(constraints)
+                .build();
+
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                 "expiry_check_daily",
-                ExistingPeriodicWorkPolicy.KEEP,
+                ExistingPeriodicWorkPolicy.UPDATE,
                 request);
 
         setContentView(R.layout.activity_main);
-        BottomNavigationView bottomNavigationView=findViewById(R.id.bottomNav);
 
-        if(savedInstanceState==null){
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.theme_system) {
+                setThemeMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                return true;
+            } else if (id == R.id.theme_light) {
+                setThemeMode(AppCompatDelegate.MODE_NIGHT_NO);
+                return true;
+            } else if (id == R.id.theme_dark) {
+                setThemeMode(AppCompatDelegate.MODE_NIGHT_YES);
+                return true;
+            }
+            return false;
+        });
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNav);
+
+        if (savedInstanceState == null) {
             switchFragment(new ScanFragment());
         }
 
-        bottomNavigationView.setOnItemSelectedListener(item->{
-            int id=item.getItemId();
-            if(id==R.id.nav_scan){
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_scan) {
                 switchFragment(new ScanFragment());
                 return true;
-            } else if (id==R.id.nav_medicines) {
+            } else if (id == R.id.nav_medicines) {
                 switchFragment(new MedicineListFragment());
                 return true;
             }
@@ -84,6 +115,19 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void applySavedTheme() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_THEME, Context.MODE_PRIVATE);
+        int mode = prefs.getInt(KEY_THEME_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        AppCompatDelegate.setDefaultNightMode(mode);
+    }
+
+    private void setThemeMode(int mode) {
+        getSharedPreferences(PREFS_THEME, Context.MODE_PRIVATE)
+                .edit()
+                .putInt(KEY_THEME_MODE, mode)
+                .apply();
+        AppCompatDelegate.setDefaultNightMode(mode);
+    }
 
     @Override
     protected void onResume() {
@@ -106,7 +150,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     private void switchFragment(Fragment fragment){
-     getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer,fragment).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, fragment).commit();
     }
 }

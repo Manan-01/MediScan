@@ -8,9 +8,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,7 +66,8 @@ public class ScanFragment extends Fragment {
     private Button btnScan, btnConfirmName, btnConfirmExpiry, btnSave;
     private ImageView ivPreview;
     private TextView tvResult, tvNameStatus, tvExpiryStatus;
-    private EditText etName, etExpiry;
+    private EditText etName, etExpiry, etQuantity, etBatchNumber;
+    private Spinner spinnerAssignedTo, spinnerLocation;
 
     private boolean nameConfirmed = false;
     private boolean expiryConfirmed = false;
@@ -75,8 +78,6 @@ public class ScanFragment extends Fragment {
     private final Executor cameraExecutor = Executors.newSingleThreadExecutor();
     private final TextRecognizer textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
     private final BarcodeScanner barcodeScanner = BarcodeScanning.getClient();
-
-    private ActivityResultLauncher<String> requestPermissionLauncher;
 
     private int burstIndex = 0;
     private final List<String> burstRawTexts = new ArrayList<>();
@@ -93,18 +94,6 @@ public class ScanFragment extends Fragment {
     public void onResume() {
         super.onResume();
         checkAndStartCamera();
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        requestPermissionLauncher = registerForActivityResult(
-                new ActivityResultContracts.RequestPermission(),
-                isGranted -> {
-                    if (isGranted) startCamera();
-                    else Toast.makeText(requireContext(), "Camera permission denied", Toast.LENGTH_SHORT).show();
-                }
-        );
     }
 
     @Nullable
@@ -130,7 +119,12 @@ public class ScanFragment extends Fragment {
         tvExpiryStatus = view.findViewById(R.id.tvExpiryStatus);
         etName = view.findViewById(R.id.etName);
         etExpiry = view.findViewById(R.id.etExpiry);
+        etQuantity = view.findViewById(R.id.etQuantity);
+        etBatchNumber = view.findViewById(R.id.etBatchNumber);
+        spinnerAssignedTo = view.findViewById(R.id.spinnerAssignedTo);
+        spinnerLocation = view.findViewById(R.id.spinnerLocation);
 
+        setupSpinners();
         checkAndStartCamera();
 
         modeTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -156,7 +150,7 @@ public class ScanFragment extends Fragment {
             nameConfirmed = true;
             etName.setEnabled(false);
             btnConfirmName.setVisibility(View.GONE);
-            tvNameStatus.setText("✓ Name confirmed");
+            tvNameStatus.setText("✓ Confirmed: " + confirmedName);
             tvNameStatus.setVisibility(View.VISIBLE);
             updateSaveButtonState();
         });
@@ -170,44 +164,49 @@ public class ScanFragment extends Fragment {
             expiryConfirmed = true;
             etExpiry.setEnabled(false);
             btnConfirmExpiry.setVisibility(View.GONE);
-            tvExpiryStatus.setText("✓ Expiry confirmed");
+            tvExpiryStatus.setText("✓ Confirmed: " + confirmedExpiry);
             tvExpiryStatus.setVisibility(View.VISIBLE);
             updateSaveButtonState();
         });
 
         btnSave.setOnClickListener(v -> {
-           String sortableExpiry;
-           try{
-               String[] parts=confirmedExpiry.split("/");
-               String month=parts[0].length()==1 ? "0" + parts[0] :parts[0];
-               String year=parts[1];
-               sortableExpiry=year+"-"+month;
-           } catch (Exception e) {
-               Toast.makeText(requireContext(),"Expiry Date Format looks wrong - please fix it and confirm again",Toast.LENGTH_LONG).show();
-               return;
-           }
-
-           YearMonth expiryYearMonth=YearMonth.parse(sortableExpiry);
-            YearMonth currentYearMonth= YearMonth.now();
-
-            if(expiryYearMonth.isBefore(currentYearMonth)){
-                Toast.makeText(requireContext(),"This Medicine already expired ("+ confirmedExpiry+") - not saving it",Toast.LENGTH_LONG).show();
+            String sortableExpiry;
+            try {
+                String[] parts = confirmedExpiry.split("/");
+                String month = parts[0].length() == 1 ? "0" + parts[0] : parts[0];
+                String year = parts[1];
+                sortableExpiry = year + "-" + month;
+            } catch (Exception e) {
+                Toast.makeText(requireContext(), "Expiry Date Format looks wrong (MM/YYYY) - please fix it and confirm again", Toast.LENGTH_LONG).show();
                 return;
             }
 
-            Medicine medicine=new Medicine();
-            medicine.name=confirmedName;
-            medicine.groupKey=confirmedName.trim().toLowerCase();
-            medicine.expiryDate=sortableExpiry;
-            medicine.notifiedSoon=false;
-            medicine.notifiedExpired=false;
+            YearMonth expiryYearMonth = YearMonth.parse(sortableExpiry);
+            YearMonth currentYearMonth = YearMonth.now();
 
-            Executors.newSingleThreadExecutor().execute(()->{
-                AppDatabase db=AppDatabase.getInstance(requireContext());
+            if (expiryYearMonth.isBefore(currentYearMonth)) {
+                Toast.makeText(requireContext(), "This Medicine already expired (" + confirmedExpiry + ") - not saving it", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            Medicine medicine = new Medicine();
+            medicine.name = confirmedName;
+            medicine.groupKey = confirmedName.trim().toLowerCase();
+            medicine.expiryDate = sortableExpiry;
+            medicine.quantity = etQuantity.getText().toString().trim();
+            medicine.batchNumber = etBatchNumber.getText().toString().trim();
+            medicine.assignedTo = spinnerAssignedTo.getSelectedItem() != null ? spinnerAssignedTo.getSelectedItem().toString() : "Self";
+            medicine.location = spinnerLocation.getSelectedItem() != null ? spinnerLocation.getSelectedItem().toString() : "Kitchen Cabinet";
+            medicine.status = "ACTIVE";
+            medicine.notifiedSoon = false;
+            medicine.notifiedExpired = false;
+
+            Executors.newSingleThreadExecutor().execute(() -> {
+                AppDatabase db = AppDatabase.getInstance(requireContext());
                 db.medicineDao().insert(medicine);
 
-                requireActivity().runOnUiThread(()->{
-                    Toast.makeText(requireContext(),"Saved: "+confirmedName+ " . exp "+confirmedExpiry,Toast.LENGTH_LONG).show();
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(requireContext(), "Saved to Digital Cabinet: " + confirmedName + " (" + medicine.assignedTo + ")", Toast.LENGTH_LONG).show();
                     resetForm();
                 });
             });
@@ -216,11 +215,21 @@ public class ScanFragment extends Fragment {
         updateHintText();
     }
 
+    private void setupSpinners() {
+        String[] familyOptions = {"Self (Me)", "Mom", "Dad", "Child", "Grandparents", "Other"};
+        ArrayAdapter<String> familyAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, familyOptions);
+        spinnerAssignedTo.setAdapter(familyAdapter);
+
+        String[] locationOptions = {"Kitchen Cabinet", "Fridge", "First-Aid Box", "Bedroom", "Bathroom Mirror", "Other"};
+        ArrayAdapter<String> locationAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, locationOptions);
+        spinnerLocation.setAdapter(locationAdapter);
+    }
+
     private void updateHintText() {
         if (currentMode == MODE_TEXT) {
-            tvHint.setText("Frame the medicine name and expiry text, then tap Scan and hold steady for a second.");
+            tvHint.setText("Frame the medicine name and expiry text, then tap Scan and hold steady.");
         } else {
-            tvHint.setText("Look for a small square barcode pattern (not the long striped one), then tap Scan. Barcodes give a reliable expiry date but not the medicine name — you'll still confirm the name yourself.");
+            tvHint.setText("Align 2D GS1 DataMatrix barcode pattern, then tap Scan.");
         }
     }
 
@@ -231,15 +240,15 @@ public class ScanFragment extends Fragment {
         confirmedExpiry = "";
         etName.setText("");
         etExpiry.setText("");
+        etQuantity.setText("");
+        etBatchNumber.setText("");
         etName.setEnabled(true);
         etExpiry.setEnabled(true);
-        etName.setVisibility(View.GONE);
-        etExpiry.setVisibility(View.GONE);
-        btnConfirmName.setVisibility(View.GONE);
-        btnConfirmExpiry.setVisibility(View.GONE);
+        btnConfirmName.setVisibility(View.VISIBLE);
+        btnConfirmExpiry.setVisibility(View.VISIBLE);
         tvNameStatus.setVisibility(View.GONE);
         tvExpiryStatus.setVisibility(View.GONE);
-        btnSave.setVisibility(View.GONE);
+        btnSave.setEnabled(false);
         ivPreview.setVisibility(View.GONE);
     }
 
@@ -268,8 +277,6 @@ public class ScanFragment extends Fragment {
             Toast.makeText(requireContext(), "Failed to bind camera", Toast.LENGTH_SHORT).show();
         }
     }
-
-    // ---------- Burst capture for text mode ----------
 
     private void startBurstCapture() {
         if (imageCapture == null) {
@@ -338,18 +345,14 @@ public class ScanFragment extends Fragment {
             if (!nameConfirmed) {
                 String nameGuess = majorityVote(burstNameGuesses);
                 if (!nameGuess.isEmpty()) etName.setText(nameGuess);
-                etName.setVisibility(View.VISIBLE);
-                btnConfirmName.setVisibility(View.VISIBLE);
             }
             if (!expiryConfirmed) {
                 String expiryGuess = majorityVote(burstExpiryGuesses);
                 if (!expiryGuess.isEmpty()) etExpiry.setText(expiryGuess);
-                etExpiry.setVisibility(View.VISIBLE);
-                btnConfirmExpiry.setVisibility(View.VISIBLE);
             }
 
             if (BackendClient.isNetworkAvailable(requireContext()) && AiUsageTracker.canUseAiToday(requireContext())) {
-                tvHint.setText("Refining with AI...");
+                tvHint.setText("Refining with Gemini AI...");
                 Executors.newSingleThreadExecutor().execute(() -> {
                     AiUsageTracker.recordAiCall(requireContext());
                     BackendClient.parseMedicine(burstRawTexts, (success, name, expiry, errorMessage) -> {
@@ -359,7 +362,6 @@ public class ScanFragment extends Fragment {
                                 if (!nameConfirmed && name != null && !name.isEmpty()) etName.setText(name);
                                 if (!expiryConfirmed && expiry != null && !expiry.isEmpty()) etExpiry.setText(expiry);
                             }
-                            // No alarming toast on failure — offline guess is already showing, that's enough
                         });
                     });
                 });
@@ -385,7 +387,6 @@ public class ScanFragment extends Fragment {
         }
         return best;
     }
-
 
     private void captureBarcodeOnce() {
         if (imageCapture == null) {
@@ -431,21 +432,14 @@ public class ScanFragment extends Fragment {
                 String expiryGuess = extractExpiryFromGs1(rawValue);
                 if (!expiryGuess.isEmpty()) {
                     etExpiry.setText(expiryGuess);
-                    etExpiry.setVisibility(View.VISIBLE);
-                    btnConfirmExpiry.setVisibility(View.VISIBLE);
                 } else {
-                    Toast.makeText(requireContext(), "Couldn't read expiry from this barcode — try Text Scan", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Couldn't read expiry from barcode — try Text Scan", Toast.LENGTH_SHORT).show();
                 }
-            }
-            if (!nameConfirmed) {
-                etName.setVisibility(View.VISIBLE);
-                btnConfirmName.setVisibility(View.VISIBLE);
             }
         });
     }
 
     private void updateSaveButtonState() {
-        btnSave.setVisibility(View.VISIBLE);
         btnSave.setEnabled(nameConfirmed && expiryConfirmed);
     }
 
@@ -504,6 +498,7 @@ public class ScanFragment extends Fragment {
         String monthNum = String.format("%02d", monthIndex + 1);
         return monthNum + "/" + fullYear;
     }
+
     private String extractName(String rawText) {
         String[] lines = rawText.split("\n");
         for (String line : lines) {
@@ -533,13 +528,12 @@ public class ScanFragment extends Fragment {
                     String mm = yymmdd.substring(2, 4);
                     return mm + "/20" + yy;
 
-                case "10": // Batch/lot — variable length, ends at a GS separator or end of string
+                case "10": // Batch/lot — variable length
                     int gsIndex = rawValue.indexOf('\u001D', pos);
                     pos = (gsIndex == -1) ? rawValue.length() : gsIndex + 1;
                     break;
 
                 default:
-                    // We don't recognize this AI's structure — safer to stop than guess wrong
                     return "";
             }
         }

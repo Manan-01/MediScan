@@ -1,53 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
-    app:cardCornerRadius="10dp"
-    app:cardElevation="1dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="14dp"
-        android:gravity="center_vertical">
-
-        <View
-            android:id="@+id/urgencyDot"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:background="@drawable/circle_shape"
-            android:layout_marginEnd="12dp"/>
+        android:orientation="vertical"
+        android:padding="14dp">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="6dp">
+
+            <View
+                android:id="@+id/urgencyDot"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/circle_shape"
+                android:layout_marginEnd="10dp"/>
 
             <TextView
                 android:id="@+id/tvItemName"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:textStyle="bold"
-                android:textSize="16sp"/>
+                android:textSize="17sp"/>
 
             <TextView
-                android:id="@+id/tvItemExpiry"
+                android:id="@+id/tvAssignedTo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/mt_teal"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvItemExpiry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/mt_muted"
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvLocation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/mt_muted"
-                android:textSize="13sp"/>
+                android:textSize="12sp"
+                android:layout_marginEnd="12dp"/>
+
+            <TextView
+                android:id="@+id/tvQuantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/mt_muted"
+                android:textSize="12sp"
+                android:layout_marginEnd="12dp"/>
+
+            <TextView
+                android:id="@+id/tvBatchNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/mt_muted"
+                android:textSize="12sp"/>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnDelete"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Remove"
-            style="?android:attr/borderlessButtonStyle"
-            android:textColor="@color/mt_coral"/>
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <Button
+                android:id="@+id/btnMarkUsed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mark Used / Disposed"
+                style="?android:attr/borderlessButtonStyle"
+                android:textSize="12sp"
+                android:textColor="@color/mt_teal"/>
+
+            <Button
+                android:id="@+id/btnDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delete"
+                style="?android:attr/borderlessButtonStyle"
+                android:textSize="12sp"
+                android:textColor="@color/mt_coral"/>
+        </LinearLayout>
+
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

@@ -1,8 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.MediScan" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/mt_teal</item>
+        <item name="colorSecondary">@color/mt_coral</item>
+        <item name="android:windowBackground">@color/mt_bg_light</item>
     </style>
 
     <style name="Theme.MediScan" parent="Base.Theme.MediScan" />

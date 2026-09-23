@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/mt_bg">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,9 +15,8 @@
             android:id="@+id/modeTabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#FFFFFF"
             app:tabIndicatorColor="@color/mt_coral"
-            app:tabSelectedTextColor="@color/mt_teal_dark"
+            app:tabSelectedTextColor="@color/mt_teal"
             app:tabTextColor="@color/mt_muted"
             android:layout_marginBottom="8dp">
 
@@ -44,7 +42,7 @@
         <androidx.camera.view.PreviewView
             android:id="@+id/previewView"
             android:layout_width="match_parent"
-            android:layout_height="260dp"
+            android:layout_height="240dp"
             android:layout_marginBottom="12dp" />
 
         <Button
@@ -53,7 +51,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/mt_teal"
             android:textColor="#FFFFFF"
-            android:text="Scan Medicine"
+            android:text="📷 Scan Medicine Package"
             android:layout_marginBottom="16dp"/>
 
         <ImageView
@@ -66,22 +64,33 @@
             android:visibility="gone"
             tools:visibility="visible"/>
 
-        <androidx.cardview.widget.CardView
+        <!-- Detected Information Confirmation Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardDetection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="10dp"
-            app:cardElevation="1dp"
-            android:layout_marginBottom="12dp">
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            android:layout_marginBottom="16dp">
+
             <LinearLayout
                 android:orientation="vertical"
-                android:padding="14dp"
+                android:padding="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:text="Medicine Name"
+                    android:text="🤖 Detected Information Verification"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:text="Medicine Name:"
                     android:textColor="@color/mt_muted"
-                    android:textSize="13sp"
+                    android:textSize="12sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
 
@@ -89,52 +98,30 @@
                     android:id="@+id/etName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    tools:visibility="visible"/>
+                    android:hint="Medicine name"
+                    android:inputType="textCapWords"
+                    android:layout_marginBottom="8dp"/>
 
                 <Button
                     android:id="@+id/btnConfirmName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Confirm name"
-                    android:visibility="gone"
-                    tools:visibility="visible"
-                    android:layout_marginTop="6dp"/>
+                    android:text="Confirm Name ✓"
+                    android:layout_marginBottom="8dp"/>
 
                 <TextView
                     android:id="@+id/tvNameStatus"
                     android:textColor="@color/mt_teal"
+                    android:textStyle="bold"
                     android:visibility="gone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-                <TextView
-                    android:id="@+id/tvRescanName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Not correct? Tap to rescan"
-                    android:textColor="@color/mt_coral"
-                    android:textSize="12sp"
-                    android:visibility="gone"
-                    android:layout_marginTop="4dp"/>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="10dp"
-            app:cardElevation="1dp"
-            android:layout_marginBottom="16dp">
-            <LinearLayout
-                android:orientation="vertical"
-                android:padding="14dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                    android:layout_marginBottom="12dp"/>
 
                 <TextView
-                    android:text="Expiry Date"
+                    android:text="Expiry Date (MM/YYYY):"
                     android:textColor="@color/mt_muted"
-                    android:textSize="13sp"
+                    android:textSize="12sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
 
@@ -142,35 +129,106 @@
                     android:id="@+id/etExpiry"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    tools:visibility="visible"/>
+                    android:hint="MM/YYYY"
+                    android:inputType="date"
+                    android:layout_marginBottom="8dp"/>
 
                 <Button
                     android:id="@+id/btnConfirmExpiry"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Confirm expiry"
-                    android:visibility="gone"
-                    tools:visibility="visible"
-                    android:layout_marginTop="6dp"/>
+                    android:text="Confirm Expiry ✓"
+                    android:layout_marginBottom="8dp"/>
 
                 <TextView
                     android:id="@+id/tvExpiryStatus"
                     android:textColor="@color/mt_teal"
+                    android:textStyle="bold"
                     android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Digital Cabinet Organization Card (Family, Location, Quantity) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardCabinetDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
                 <TextView
-                    android:id="@+id/tvRescanExpiry"
+                    android:text="🏠 Cabinet Organization &amp; Details"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Not correct? Tap to rescan"
-                    android:textColor="@color/mt_coral"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:text="Assign to Family Member:"
+                    android:textColor="@color/mt_muted"
                     android:textSize="12sp"
-                    android:visibility="gone"
-                    android:layout_marginTop="4dp"/>
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <Spinner
+                    android:id="@+id/spinnerAssignedTo"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:text="Storage Location:"
+                    android:textColor="@color/mt_muted"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <Spinner
+                    android:id="@+id/spinnerLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:text="Quantity (Optional):"
+                    android:textColor="@color/mt_muted"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <EditText
+                    android:id="@+id/etQuantity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="e.g. 10 Tablets / 1 Bottle"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:text="Batch Number (Optional):"
+                    android:textColor="@color/mt_muted"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <EditText
+                    android:id="@+id/etBatchNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="e.g. B12345"/>
+
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <Button
             android:id="@+id/btnSave"
@@ -178,8 +236,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/mt_coral"
             android:textColor="#FFFFFF"
-            android:text="Save Medicine"
-            android:visibility="gone"
+            android:text="💾 Save to Digital Cabinet"
             android:enabled="false"
             tools:visibility="visible"/>
 
@@ -191,7 +248,7 @@
             android:textSize="12sp"
             android:visibility="gone"
             android:layout_marginTop="16dp"
-            android:text="Raw scan output will appear here for debugging"
+            android:text="Raw scan output"
             />
 
     </LinearLayout>

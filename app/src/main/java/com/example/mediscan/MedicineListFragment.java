@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,10 +16,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-public class MedicineListFragment extends Fragment {
+public class MedicineListFragment extends Fragment implements MedicineAdapter.OnMedicineActionListener {
 
     private RecyclerView recyclerView;
     private EditText etSearch;
@@ -40,7 +42,7 @@ public class MedicineListFragment extends Fragment {
         tvEmptyState = view.findViewById(R.id.tvEmptyState);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        adapter = new MedicineAdapter(new java.util.ArrayList<>(), this::onDeleteMedicine);
+        adapter = new MedicineAdapter(new ArrayList<>(), this);
         recyclerView.setAdapter(adapter);
 
         etSearch.addTextChangedListener(new TextWatcher() {
@@ -63,26 +65,55 @@ public class MedicineListFragment extends Fragment {
     private void loadMedicines(String searchQuery) {
         Executors.newSingleThreadExecutor().execute(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
-            List<Medicine> results;
-            if (searchQuery == null || searchQuery.trim().isEmpty()) {
-                results = db.medicineDao().getAllOrderedByExpiry();
-            } else {
-                results = db.medicineDao().searchByName("%" + searchQuery.trim() + "%");
+            List<Medicine> all = db.medicineDao().getAllOrderedByExpiry();
+            List<Medicine> filtered = new ArrayList<>();
+
+            String query = (searchQuery == null) ? "" : searchQuery.trim().toLowerCase();
+
+            for (Medicine m : all) {
+                if (query.isEmpty()) {
+                    filtered.add(m);
+                } else {
+                    boolean matchName = m.name != null && m.name.toLowerCase().contains(query);
+                    boolean matchAssigned = m.assignedTo != null && m.assignedTo.toLowerCase().contains(query);
+                    boolean matchLocation = m.location != null && m.location.toLowerCase().contains(query);
+                    boolean matchBatch = m.batchNumber != null && m.batchNumber.toLowerCase().contains(query);
+                    if (matchName || matchAssigned || matchLocation || matchBatch) {
+                        filtered.add(m);
+                    }
+                }
             }
 
             requireActivity().runOnUiThread(() -> {
-                adapter.updateList(results);
-                tvEmptyState.setVisibility(results.isEmpty() ? View.VISIBLE : View.GONE);
-                recyclerView.setVisibility(results.isEmpty() ? View.GONE : View.VISIBLE);
+                adapter.updateList(filtered);
+                tvEmptyState.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
+                recyclerView.setVisibility(filtered.isEmpty() ? View.GONE : View.VISIBLE);
             });
         });
     }
 
-    private void onDeleteMedicine(Medicine medicine) {
+    @Override
+    public void onDelete(Medicine medicine) {
         Executors.newSingleThreadExecutor().execute(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
             db.medicineDao().delete(medicine);
-            requireActivity().runOnUiThread(() -> loadMedicines(etSearch.getText().toString()));
+            requireActivity().runOnUiThread(() -> {
+                Toast.makeText(requireContext(), "Removed: " + medicine.name, Toast.LENGTH_SHORT).show();
+                loadMedicines(etSearch.getText().toString());
+            });
+        });
+    }
+
+    @Override
+    public void onMarkUsed(Medicine medicine) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            medicine.status = "USED";
+            db.medicineDao().update(medicine);
+            requireActivity().runOnUiThread(() -> {
+                Toast.makeText(requireContext(), "Marked as Used/Disposed: " + medicine.name, Toast.LENGTH_SHORT).show();
+                loadMedicines(etSearch.getText().toString());
+            });
         });
     }
 }

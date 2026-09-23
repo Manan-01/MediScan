@@ -17,6 +17,11 @@ public class Medicine {
     public String name;
     public LocalDate expiryDate;
     public String dosage;
+    public String quantity;
+    public String batchNumber;
+    public String assignedTo;
+    public String location;
+
     @Transient
     public Long daysUntilExpiry;
 
