@@ -100,19 +100,6 @@ MediScan/
 
 ---
 
-## 📝 Submitting to Global Innovation Hackathon 2026
-
-To complete the hackathon project submission round before the deadline:
-
-1. **GitHub Repository**:
-   - Repository URL: [https://github.com/Manan-01/MediScan](https://github.com/Manan-01/MediScan)
-2. **Unstop Submission**:
-   - Submit the GitHub Repository URL on Unstop under the Project Submission Round.
-3. **Bharat Academix Form**:
-   - Complete the official form: [Bharat Academix Project Form](https://forms.gle/Zr6C1DbVQmjXZ1G86)
-   - Provide project details, GitHub URL (`https://github.com/Manan-01/MediScan`), and description.
-
----
 
 ## 👨‍💻 Author
 
