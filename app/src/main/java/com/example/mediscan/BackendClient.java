@@ -19,11 +19,7 @@ import java.util.List;
 
 public class BackendClient {
 
-    // Default Spring Boot backend URL. 
-    // - For deployed cloud server (e.g. Render/Railway): "https://your-mediscan-backend.onrender.com"
-    // - For Android Emulator local testing: "http://10.0.2.2:8080"
-    // - For local Wi-Fi testing: "http://<YOUR_LOCAL_IP>:8080"
-    private static final String BASE_URL = "http://10.0.2.2:8080";
+    private static final String BASE_URL = "http://192.168.29.67:8080";
 
     public interface ParseCallback{
         void onResult(boolean success,String name,String expiry,String errorMessage);
