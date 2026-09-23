@@ -11,6 +11,20 @@ Submitted for **Global Innovation Hackathon 2026 – Build for a Better Future**
 
 ---
 
+## 📲 Direct APK Download & Installation
+
+You can download and install the pre-built Android APK directly onto your Android device:
+
+[![Download APK](https://img.shields.io/badge/Download-MediScan.apk-brightgreen?style=for-the-badge&logo=android)](https://github.com/Manan-01/MediScan/raw/main/apk/MediScan.apk)
+
+### Quick Installation Guide:
+1. Tap **[Download MediScan.apk](https://github.com/Manan-01/MediScan/raw/main/apk/MediScan.apk)** on your Android device.
+2. Open the downloaded file (`MediScan.apk`).
+3. If prompted, enable **"Install from unknown sources"** in your device settings.
+4. Tap **Install** and launch **MediScan**!
+
+---
+
 ## 📌 Problem Statement & Overview
 
 Unused, forgotten, or expired medicines in households pose serious health risks if consumed accidentally and contribute to environmental hazards when disposed of improperly. Manually maintaining medicine expiry dates is tedious, error-prone, and often overlooked.
@@ -99,7 +113,6 @@ MediScan/
    - Click **Run > Run 'app'** or press `Shift + F10`.
 
 ---
-
 
 ## 👨‍💻 Author
 
