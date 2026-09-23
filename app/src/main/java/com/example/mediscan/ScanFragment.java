@@ -83,6 +83,18 @@ public class ScanFragment extends Fragment {
     private final List<String> burstNameGuesses = new ArrayList<>();
     private final List<String> burstExpiryGuesses = new ArrayList<>();
 
+    public void checkAndStartCamera() {
+        if (isAdded() && ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            startCamera();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkAndStartCamera();
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,11 +131,7 @@ public class ScanFragment extends Fragment {
         etName = view.findViewById(R.id.etName);
         etExpiry = view.findViewById(R.id.etExpiry);
 
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            startCamera();
-        } else {
-            requestPermissionLauncher.launch(Manifest.permission.CAMERA);
-        }
+        checkAndStartCamera();
 
         modeTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override public void onTabSelected(TabLayout.Tab tab) {

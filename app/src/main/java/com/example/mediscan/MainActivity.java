@@ -5,6 +5,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,31 +14,46 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.WorkManager;
-import androidx.work.OneTimeWorkRequest;
 
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
+    private final ActivityResultLauncher<String[]> permissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                Boolean cameraGranted = result.getOrDefault(Manifest.permission.CAMERA, false);
+                if (Boolean.TRUE.equals(cameraGranted)) {
+                    Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+                    if (currentFragment instanceof ScanFragment) {
+                        ((ScanFragment) currentFragment).checkAndStartCamera();
+                    }
+                }
+            });
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         NotificationHelper.createChannel(this);
 
+        List<String> permissionsToRequest = new ArrayList<>();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(Manifest.permission.CAMERA);
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS);
             }
+        }
+        if (!permissionsToRequest.isEmpty()) {
+            permissionLauncher.launch(permissionsToRequest.toArray(new String[0]));
         }
 
         PeriodicWorkRequest request = new PeriodicWorkRequest.Builder(

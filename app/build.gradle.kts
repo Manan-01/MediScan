@@ -16,6 +16,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters.addAll(setOf("arm64-v8a", "armeabi-v7a"))
+        }
     }
 
     buildTypes {
@@ -43,8 +47,8 @@ dependencies {
     implementation("androidx.camera:camera-camera2:1.4.2")
     implementation("androidx.camera:camera-lifecycle:1.4.2")
     implementation("androidx.camera:camera-view:1.4.2")
-    implementation("com.google.mlkit:text-recognition:16.0.1")
-    implementation("com.google.mlkit:barcode-scanning:17.3.0")
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.1")
+    implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1")
     implementation("com.google.android.material:material:1.14.0")
     implementation("androidx.fragment:fragment:1.9.0")
     implementation("androidx.cardview:cardview:1.0.0")
