@@ -27,7 +27,7 @@ Unused, forgotten, or expired medicines in households pose serious health risks 
 
 ### 🤖 2. Offline-First with Optional AI Refinement
 - Works 100% offline using local ML Kit models and regex logic.
-- Optionally connects to a cloud parser backend when internet is available to refine extracted medicine names and expiration dates.
+- Connects to the live cloud Gemini AI backend service deployed on Render (`https://mediscan-backend-oes2.onrender.com`) when internet is available to refine extracted medicine names and expiration dates.
 
 ### 📦 3. Local Room Database & Validation
 - Saves verified medicines in an offline SQLite database via Jetpack Room.
