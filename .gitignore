@@ -31,5 +31,4 @@ body.json
 # Backend Build Directory
 backend/target/
 target/
-backend/.mvn/
 backend/medicare-db*

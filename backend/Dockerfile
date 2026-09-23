@@ -1,8 +1,8 @@
-# Stage 1: Build the Spring Boot application
-FROM eclipse-temurin:21-jdk-alpine AS build
+# Stage 1: Build the Spring Boot application using Maven + JDK 21 image
+FROM maven:3.9-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 COPY backend/ .
-RUN chmod +x mvnw && ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 # Stage 2: Run the application
 FROM eclipse-temurin:21-jre-alpine
