@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="14dp"
+        android:gravity="center_vertical">
+
+        <View
+            android:id="@+id/urgencyDot"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:background="@drawable/circle_shape"
+            android:layout_marginEnd="12dp"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvItemName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/tvItemExpiry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/mt_muted"
+                android:textSize="13sp"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Remove"
+            style="?android:attr/borderlessButtonStyle"
+            android:textColor="@color/mt_coral"/>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

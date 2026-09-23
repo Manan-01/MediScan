@@ -1,0 +1,41 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Medicine capsule -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,31
+            C31.4,37.6 31.4,48.4 38,55
+            L53,70
+            C59.6,76.6 70.4,76.6 77,70
+            C83.6,63.4 83.6,52.6 77,46
+            L62,31
+            C55.4,24.4 44.6,24.4 38,31Z" />
+
+    <!-- Capsule dividing line -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M38,55L77,46"
+        android:strokeWidth="3"
+        android:strokeColor="#1976D2" />
+
+    <!-- Medical cross -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M52,38
+            L60,38
+            L60,47
+            L69,47
+            L69,55
+            L60,55
+            L60,64
+            L52,64
+            L52,55
+            L43,55
+            L43,47
+            L52,47Z" />
+
+</vector>

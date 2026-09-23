@@ -1,0 +1,35 @@
+# IDE & Gradle Build Artifacts
+*.iml
+.gradle/
+.idea/
+/build/
+app/build/
+/local.properties
+local.properties
+.DS_Store
+/captures
+.externalNativeBuild
+.cxx
+
+# Secrets, Environment Variables & Local Scripts
+*.bat
+!gradlew.bat
+run.bat
+*.env
+*.key
+*.pem
+*.jks
+*.keystore
+client_secret*.json
+google-services.json
+
+# Local H2 Database & Scratch Test Files
+*.mv.db
+*.trace.db
+body.json
+
+# Backend Build Directory
+backend/target/
+target/
+backend/.mvn/
+backend/medicare-db*

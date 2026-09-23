@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicare</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        .alert-box {
+            background: #ffe5e5;
+            border: 1px solid #ff9999;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+
+        .alert-box h2 {
+            color: #c0392b;
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        form {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        button {
+            padding: 8px 14px;
+            background: #2c7be5;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button.delete {
+            background: #e74c3c;
+            padding: 4px 8px;
+        }
+
+        li {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            background: #e74c3c;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Medicare</h1>
+    <div id="alerts" class="alert-box" style="display:none;">
+        <h2>Expiring Soon</h2>
+        <ul id="alertList"></ul>
+    </div>
+
+    <form id="addForm">
+        <input id="name" placeholder="Medicine name" required>
+        <input id="expiryDate" type="=date" required>
+        <input id="dosage" placeholder="Dosage ">
+        <button type="submit">ADD</button>
+    </form>
+
+    <ul id="list"></ul>
+
+    <script>
+        async function loadData() {
+            const medicines = await (await fetch("/medicines")).json;
+            const alerts = await (await fetch("/alerts")).json;
+
+            const list = document.getElementById('list')
+            list.innerHTML = '';
+            for (const m of medicines) {
+                const li = document.createElement('li');
+                li.innerHTML = m.name + ' - ' + m.dosage + ' - ' + m.expiryDate + '<button class="delete" onclick="deleteMedicine(' + m.id + ')">Delete</button>';
+                list.appendChild(li);
+            }
+            const alertBox = document.getElementById('alerts');
+            const alertList = document.getElementById('alertList');
+            alertList.innerHTML = '';
+            if (alerts.length > 0) {
+                alertBox.style.display = 'block';
+                for (const a of alerts) {
+                    const li = document.createElement('li');
+                    li.innerHTML = a.name + ' expires in ' + a.daysUntilExpiry + ' days <span class="badge">URGENT</span>';
+                    alertList.appendChild(li);
+                }
+            } else {
+                alertBox.style.display = 'none';
+            }
+        }
+
+        document.getElementById('addForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const medicine = {
+                name: document.getElementById('name').value,
+                expiryDate: document.getElementById('expiryDate').value,
+                dosage: document.getElementById('dosage').value
+            };
+            await fetch('/medicines', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify([medicine])   // API expects a list — wrap in [ ]
+            });
+            document.getElementById('addForm').reset();
+            loadData();
+        });
+
+        async function deleteMedicine(id) {
+            await fetch('/medicines/' + id, { method: 'DELETE' });
+            loadData();
+        }
+
+        loadData();
+    </script>
+</body>
+
+</html>
+
+</html>

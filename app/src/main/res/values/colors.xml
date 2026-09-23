@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mt_teal">#0F5C56</color>
+    <color name="mt_teal_dark">#0B453F</color>
+    <color name="mt_coral">#E2725B</color>
+    <color name="mt_bg">#F7F6F2</color>
+    <color name="mt_muted">#6B7A75</color>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

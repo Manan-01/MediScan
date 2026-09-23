@@ -1,0 +1,3 @@
+@echo off
+set GEMINI_API_KEY= your API key
+mvnw spring-boot:run
