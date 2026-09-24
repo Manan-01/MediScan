@@ -49,28 +49,28 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.ViewHo
         holder.tvItemName.setText(medicine.name);
 
         if (medicine.assignedTo != null && !medicine.assignedTo.isEmpty()) {
-            holder.tvAssignedTo.setText("👤 " + medicine.assignedTo);
+            holder.tvAssignedTo.setText(medicine.assignedTo);
             holder.tvAssignedTo.setVisibility(View.VISIBLE);
         } else {
             holder.tvAssignedTo.setVisibility(View.GONE);
         }
 
         if (medicine.location != null && !medicine.location.isEmpty()) {
-            holder.tvLocation.setText("📍 " + medicine.location);
+            holder.tvLocation.setText("Location: " + medicine.location);
             holder.tvLocation.setVisibility(View.VISIBLE);
         } else {
             holder.tvLocation.setVisibility(View.GONE);
         }
 
         if (medicine.quantity != null && !medicine.quantity.isEmpty()) {
-            holder.tvQuantity.setText("🔢 " + medicine.quantity);
+            holder.tvQuantity.setText("Qty: " + medicine.quantity);
             holder.tvQuantity.setVisibility(View.VISIBLE);
         } else {
             holder.tvQuantity.setVisibility(View.GONE);
         }
 
         if (medicine.batchNumber != null && !medicine.batchNumber.isEmpty()) {
-            holder.tvBatchNumber.setText("🏷️ Batch: " + medicine.batchNumber);
+            holder.tvBatchNumber.setText("Batch: " + medicine.batchNumber);
             holder.tvBatchNumber.setVisibility(View.VISIBLE);
         } else {
             holder.tvBatchNumber.setVisibility(View.GONE);
@@ -78,26 +78,35 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.ViewHo
 
         boolean isUsed = "USED".equalsIgnoreCase(medicine.status) || "DISPOSED".equalsIgnoreCase(medicine.status);
 
+        YearMonth currentMonth = YearMonth.now();
         YearMonth expiry = YearMonth.parse(medicine.expiryDate);
         LocalDate expiryDate = expiry.atEndOfMonth();
         long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), expiryDate);
+
+        String displayDate;
+        try {
+            String[] parts = medicine.expiryDate.split("-");
+            displayDate = parts[1] + "/" + parts[0];
+        } catch (Exception e) {
+            displayDate = medicine.expiryDate;
+        }
 
         String expiryLabel;
         int color;
         if (isUsed) {
             expiryLabel = "Status: Used / Disposed";
             color = Color.parseColor("#7F8C8D"); // Grey
-        } else if (daysLeft < 0) {
-            expiryLabel = "EXPIRED (" + medicine.expiryDate + ")";
+        } else if (expiry.isBefore(currentMonth)) {
+            expiryLabel = "EXPIRED (" + displayDate + ")";
             color = Color.parseColor("#C0392B"); // Red
-        } else if (daysLeft <= 30) {
-            expiryLabel = "Expires " + medicine.expiryDate + " (soon)";
+        } else if (expiry.equals(currentMonth) || daysLeft <= 30) {
+            expiryLabel = "Expires " + displayDate + " (Expiring soon)";
             color = Color.parseColor("#E2725B"); // Orange
         } else if (daysLeft <= 90) {
-            expiryLabel = "Expires " + medicine.expiryDate;
+            expiryLabel = "Expires " + displayDate;
             color = Color.parseColor("#D4A017"); // Yellow
         } else {
-            expiryLabel = "Expires " + medicine.expiryDate;
+            expiryLabel = "Expires " + displayDate;
             color = Color.parseColor("#2E8B57"); // Green
         }
 

@@ -2,6 +2,7 @@ package com.example.mediscan;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -33,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String PREFS_THEME = "theme_prefs";
     private static final String KEY_THEME_MODE = "theme_mode";
+
+    private BottomNavigationView bottomNavigationView;
 
     private final ActivityResultLauncher<String[]> permissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
@@ -96,11 +99,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNav);
-
-        if (savedInstanceState == null) {
-            switchFragment(new ScanFragment());
-        }
+        bottomNavigationView = findViewById(R.id.bottomNav);
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -113,6 +112,25 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
+
+        handleNotificationIntent(getIntent(), savedInstanceState);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleNotificationIntent(intent, null);
+    }
+
+    private void handleNotificationIntent(Intent intent, Bundle savedInstanceState) {
+        boolean openList = intent != null && intent.getBooleanExtra("open_list", false);
+        if (openList) {
+            bottomNavigationView.setSelectedItemId(R.id.nav_medicines);
+            switchFragment(new MedicineListFragment());
+        } else if (savedInstanceState == null) {
+            switchFragment(new ScanFragment());
+        }
     }
 
     private void applySavedTheme() {
@@ -137,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
             YearMonth currentMonth = YearMonth.now();
             long expiredCount = all.stream().filter(m -> {
                 try {
-                    return YearMonth.parse(m.expiryDate).compareTo(currentMonth) <= 0;
+                    return YearMonth.parse(m.expiryDate).isBefore(currentMonth);
                 } catch (Exception e) {
                     return false;
                 }

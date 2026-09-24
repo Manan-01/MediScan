@@ -12,29 +12,33 @@ import java.util.List;
 public class ExpiryCheckWorker extends Worker {
 
     public ExpiryCheckWorker(@NonNull Context context, @NonNull WorkerParameters params){
-        super(context,params);
+        super(context, params);
     }
-
 
     @NonNull
     @Override
     public Result doWork(){
-        Context context=getApplicationContext();
-        AppDatabase db=AppDatabase.getInstance(context);
-        MedicineDao dao= db.medicineDao();
+        Context context = getApplicationContext();
+        AppDatabase db = AppDatabase.getInstance(context);
+        MedicineDao dao = db.medicineDao();
 
-        List<Medicine> medicines=dao.getAllSync();
-        YearMonth currentMonth=YearMonth.now();
-        int notificationId=1000;
-        for(Medicine m: medicines){
-            YearMonth expiry;
-            try{
-                expiry=YearMonth.parse(m.expiryDate);
-            }catch (Exception e){
+        List<Medicine> medicines = dao.getAllSync();
+        YearMonth currentMonth = YearMonth.now();
+        int notificationId = 1000;
+        for (Medicine m : medicines) {
+            if ("USED".equalsIgnoreCase(m.status) || "DISPOSED".equalsIgnoreCase(m.status)) {
                 continue;
             }
-            boolean isExpired = expiry.isBefore(currentMonth) ;
-            boolean isExpiringSoon = expiry.equals(currentMonth.plusMonths(1));
+
+            YearMonth expiry;
+            try {
+                expiry = YearMonth.parse(m.expiryDate);
+            } catch (Exception e) {
+                continue;
+            }
+
+            boolean isExpired = expiry.isBefore(currentMonth);
+            boolean isExpiringSoon = expiry.equals(currentMonth) || expiry.equals(currentMonth.plusMonths(1));
 
             if (isExpired && !m.notifiedExpired) {
                 NotificationHelper.showExpiredToday(context, m.name, notificationId + m.id);

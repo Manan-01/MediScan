@@ -4,15 +4,15 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/theme_system"
-            android:title="🌓 System Theme"
+            android:title="System Default Theme"
             app:showAsAction="never" />
         <item
             android:id="@+id/theme_light"
-            android:title="☀️ Light Mode"
+            android:title="Light Mode"
             app:showAsAction="never" />
         <item
             android:id="@+id/theme_dark"
-            android:title="🌙 Dark Mode"
+            android:title="Dark Mode"
             app:showAsAction="never" />
     </group>
 </menu>

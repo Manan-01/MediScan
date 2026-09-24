@@ -63,7 +63,7 @@ public class ScanFragment extends Fragment {
     private TabLayout modeTabs;
     private TextView tvHint;
     private PreviewView previewView;
-    private Button btnScan, btnConfirmName, btnConfirmExpiry, btnSave;
+    private Button btnScan, btnConfirmName, btnConfirmExpiry, btnSave, btnRescan;
     private ImageView ivPreview;
     private TextView tvResult, tvNameStatus, tvExpiryStatus;
     private EditText etName, etExpiry, etQuantity, etBatchNumber;
@@ -110,6 +110,7 @@ public class ScanFragment extends Fragment {
         tvHint = view.findViewById(R.id.tvHint);
         previewView = view.findViewById(R.id.previewView);
         btnScan = view.findViewById(R.id.btnScan);
+        btnRescan = view.findViewById(R.id.btnRescan);
         btnConfirmName = view.findViewById(R.id.btnConfirmName);
         btnConfirmExpiry = view.findViewById(R.id.btnConfirmExpiry);
         btnSave = view.findViewById(R.id.btnSave);
@@ -141,31 +142,59 @@ public class ScanFragment extends Fragment {
             else captureBarcodeOnce();
         });
 
+        btnRescan.setOnClickListener(v -> {
+            nameConfirmed = false;
+            expiryConfirmed = false;
+            etName.setEnabled(true);
+            etExpiry.setEnabled(true);
+            btnConfirmName.setText("Confirm Name");
+            btnConfirmExpiry.setText("Confirm Expiry");
+            tvNameStatus.setVisibility(View.GONE);
+            tvExpiryStatus.setVisibility(View.GONE);
+            updateSaveButtonState();
+            if (currentMode == MODE_TEXT) startBurstCapture();
+            else captureBarcodeOnce();
+        });
+
         btnConfirmName.setOnClickListener(v -> {
-            confirmedName = etName.getText().toString().trim();
-            if (confirmedName.isEmpty()) {
-                Toast.makeText(requireContext(), "Name can't be empty", Toast.LENGTH_SHORT).show();
-                return;
+            if (nameConfirmed) {
+                nameConfirmed = false;
+                etName.setEnabled(true);
+                btnConfirmName.setText("Confirm Name");
+                tvNameStatus.setVisibility(View.GONE);
+            } else {
+                confirmedName = etName.getText().toString().trim();
+                if (confirmedName.isEmpty()) {
+                    Toast.makeText(requireContext(), "Name can't be empty", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                nameConfirmed = true;
+                etName.setEnabled(false);
+                btnConfirmName.setText("Edit Name");
+                tvNameStatus.setText("Confirmed: " + confirmedName);
+                tvNameStatus.setVisibility(View.VISIBLE);
             }
-            nameConfirmed = true;
-            etName.setEnabled(false);
-            btnConfirmName.setVisibility(View.GONE);
-            tvNameStatus.setText("✓ Confirmed: " + confirmedName);
-            tvNameStatus.setVisibility(View.VISIBLE);
             updateSaveButtonState();
         });
 
         btnConfirmExpiry.setOnClickListener(v -> {
-            confirmedExpiry = etExpiry.getText().toString().trim();
-            if (confirmedExpiry.isEmpty()) {
-                Toast.makeText(requireContext(), "Expiry can't be empty", Toast.LENGTH_SHORT).show();
-                return;
+            if (expiryConfirmed) {
+                expiryConfirmed = false;
+                etExpiry.setEnabled(true);
+                btnConfirmExpiry.setText("Confirm Expiry");
+                tvExpiryStatus.setVisibility(View.GONE);
+            } else {
+                confirmedExpiry = etExpiry.getText().toString().trim();
+                if (confirmedExpiry.isEmpty()) {
+                    Toast.makeText(requireContext(), "Expiry can't be empty", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                expiryConfirmed = true;
+                etExpiry.setEnabled(false);
+                btnConfirmExpiry.setText("Edit Expiry");
+                tvExpiryStatus.setText("Confirmed: " + confirmedExpiry);
+                tvExpiryStatus.setVisibility(View.VISIBLE);
             }
-            expiryConfirmed = true;
-            etExpiry.setEnabled(false);
-            btnConfirmExpiry.setVisibility(View.GONE);
-            tvExpiryStatus.setText("✓ Confirmed: " + confirmedExpiry);
-            tvExpiryStatus.setVisibility(View.VISIBLE);
             updateSaveButtonState();
         });
 
@@ -173,8 +202,10 @@ public class ScanFragment extends Fragment {
             String sortableExpiry;
             try {
                 String[] parts = confirmedExpiry.split("/");
-                String month = parts[0].length() == 1 ? "0" + parts[0] : parts[0];
-                String year = parts[1];
+                String month = parts[0].trim();
+                if (month.length() == 1) month = "0" + month;
+                String year = parts[1].trim();
+                if (year.length() == 2) year = "20" + year;
                 sortableExpiry = year + "-" + month;
             } catch (Exception e) {
                 Toast.makeText(requireContext(), "Expiry Date Format looks wrong (MM/YYYY) - please fix it and confirm again", Toast.LENGTH_LONG).show();
@@ -244,10 +275,13 @@ public class ScanFragment extends Fragment {
         etBatchNumber.setText("");
         etName.setEnabled(true);
         etExpiry.setEnabled(true);
+        btnConfirmName.setText("Confirm Name");
+        btnConfirmExpiry.setText("Confirm Expiry");
         btnConfirmName.setVisibility(View.VISIBLE);
         btnConfirmExpiry.setVisibility(View.VISIBLE);
         tvNameStatus.setVisibility(View.GONE);
         tvExpiryStatus.setVisibility(View.GONE);
+        if (btnRescan != null) btnRescan.setVisibility(View.GONE);
         btnSave.setEnabled(false);
         ivPreview.setVisibility(View.GONE);
     }
@@ -337,6 +371,7 @@ public class ScanFragment extends Fragment {
     private void finishBurstCapture() {
         requireActivity().runOnUiThread(() -> {
             btnScan.setEnabled(true);
+            if (btnRescan != null) btnRescan.setVisibility(View.VISIBLE);
             updateHintText();
             ivPreview.setVisibility(View.VISIBLE);
 
@@ -419,6 +454,7 @@ public class ScanFragment extends Fragment {
     private void handleBarcodeResult(List<Barcode> barcodes) {
         requireActivity().runOnUiThread(() -> {
             ivPreview.setVisibility(View.VISIBLE);
+            if (btnRescan != null) btnRescan.setVisibility(View.VISIBLE);
 
             if (barcodes.isEmpty()) {
                 Toast.makeText(requireContext(), "No barcode found — try again", Toast.LENGTH_SHORT).show();

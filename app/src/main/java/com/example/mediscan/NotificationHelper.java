@@ -29,17 +29,18 @@ public class NotificationHelper {
     }
 
     public static void showExpiringSoon(Context context, String medicineName, int notificationId){
-        show(context, notificationId, "⚠️ Medicine Expiring Soon", medicineName + " is expiring this month.");
+        show(context, notificationId, "Medicine Expiring Soon", medicineName + " is expiring this month.");
     }
 
     public static void showExpiredToday(Context context, String medicineName, int notificationId){
-        show(context, notificationId, "🚨 Medicine Expired", medicineName + " has expired. Please dispose of it safely.");
+        show(context, notificationId, "Medicine Expired", medicineName + " has expired. Please dispose of it safely.");
     }
 
     public static void showPersistingNag(Context context, int count, int notificationId){
-        String text = count == 1 ? "You have 1 expired medicine still in your cabinet." : "You have " + count + " expired medicines still in your cabinet.";
+        String text = count == 1 ? "You have 1 expired medicine in your cabinet." : "You have " + count + " expired medicines in your cabinet.";
 
         Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra("open_list", true);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context, notificationId, intent,
@@ -64,6 +65,7 @@ public class NotificationHelper {
 
     private static void show(Context context, int id, String title, String text) {
         Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra("open_list", true);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context, id, intent,
